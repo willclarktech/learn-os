@@ -1,0 +1,18 @@
+# Random crap
+.DS_Store
+
+# Secrets etc
+.env
+
+# Temporary files
+tmp/
+
+# VM ISO etc
+*.zip
+*.iso
+
+# VM state
+*.utm/
+
+# Shared directory
+mount/
