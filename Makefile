@@ -8,7 +8,7 @@ HDD_IMG=hdd.img
 DISK_SIZE_MB=10
 SECTORS_PER_MB=2048
 
-.PHONY: all clean
+.PHONY: all clean run
 
 all: $(HDD_IMG)
 
@@ -24,3 +24,6 @@ $(HDD_IMG): $(MBR_BIN)
 
 clean:
 	rm -rf $(BIN_DIR) $(HDD_IMG)
+
+run:
+	bochs -q
