@@ -16,22 +16,21 @@ start:
 	mov si, hello
 	call print_string
 
-load_kernel:
-	mov ah, 0x02 ; Function number for reading sectors
-	mov al, 1 ; Number of sectors to read
-	mov dl, 0x80 ; Drive number
-	mov ch, 0 ; Cylinder number
-	mov dh, 0 ; Head number
-	mov cl, 2 ; Starting sector number (2 is right after the MBR)
-	mov bx, 0x600 ; Buffer address
-	int 0x13
-	jc hang
+	call load_kernel
 
 	mov si, loaded
 	call print_string
 
 	jmp 0x600 ; Jump to the kernel
 	jmp hang
+
+load_kernel:
+	mov si, dap
+	mov ah, 0x42 ; Function number for extended read
+	mov dl, 0x80 ; Drive number for the HDD
+	int 0x13
+	jc hang
+	ret
 
 print_string:
 	lodsb
@@ -43,12 +42,20 @@ print_string:
 print_string_ret:
 	ret
 
+hello db "Hello from the MBR!", 0x0D, 0x0A, 0
+loaded db "Loaded kernel into RAM"
+
+dap:
+	db 0x10 ; Size of the DAP (16 bytes)
+	db 0 ; Unused
+	dw 1 ; Number of sectors to read
+	dw 0x600 ; Offset of buffer in memory (destination)
+	dw 0 ; Segment of buffer in memory
+	dq 1 ; LBA of the first sector to read (the sector immediately after MBR)
+
 ; Infinite loop (hang the system if no bootable partition is found)
 hang:
 	jmp hang
-
-hello db "Hello from the MBR!", 0x0D, 0x0A, 0
-loaded db "Loaded kernel into RAM"
 
 ; Boot signature
 times 510-($-$$) db 0 ; Pad boot sector with 0s
