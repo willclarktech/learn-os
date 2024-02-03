@@ -16,3 +16,11 @@ tmp/
 
 # Shared directory
 mount/
+
+# Assembled/compiled/created files
+bin/
+*.img
+*.img.lock
+
+# Log files
+bochslog.txt
