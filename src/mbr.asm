@@ -15,7 +15,23 @@ start:
 
 	mov si, hello
 	call print_string
-	call hang
+
+load_kernel:
+	mov ah, 0x02 ; Function number for reading sectors
+	mov al, 1 ; Number of sectors to read
+	mov dl, 0x80 ; Drive number
+	mov ch, 0 ; Cylinder number
+	mov dh, 0 ; Head number
+	mov cl, 2 ; Starting sector number (2 is right after the MBR)
+	mov bx, 0x600 ; Buffer address
+	int 0x13
+	jc hang
+
+	mov si, loaded
+	call print_string
+
+	jmp 0x600 ; Jump to the kernel
+	jmp hang
 
 print_string:
 	lodsb
@@ -32,6 +48,7 @@ hang:
 	jmp hang
 
 hello db "Hello from the MBR!", 0x0D, 0x0A, 0
+loaded db "Loaded kernel into RAM"
 
 ; Boot signature
 times 510-($-$$) db 0 ; Pad boot sector with 0s
