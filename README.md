@@ -20,7 +20,7 @@ Download and unzip the [Debian 12 (Rosetta) preset](https://mac.getutm.app/galle
 1. Right click on the machine and choose `Edit` to change the VM settings.
 1. In the `Network Mode` section select `Bridged (Advanced)` for internet access.
 1. In the `Sharing` section choose `Add` and navigate to `./mount` for a shared directory between the host machine (your Mac) and the guest machine (the Debian VM).
-1. Also in the `Sharing` check the `Add read only` checkbox, choose `Add` and navigate to `./` for readonly access to this repo from inside the VM.
+1. Also in the `Sharing` section check the `Add read only` checkbox, choose `Add` and navigate to `./` for readonly access to this repo from inside the VM.
 1. Increase the VM’s RAM and disk space if required.
 
 ### 4. Set up the virtual machine
