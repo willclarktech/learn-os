@@ -13,15 +13,22 @@ start:
 	mov ss, ax
 	mov sp, ax ; Set stack pointer to the top of the segment
 
-	mov si, hello
+	mov si, str_hello
 	call print_string
 
 	call load_kernel
+	mov si, str_loaded_kernel
+	call print_string
 
-	mov si, loaded
+	lgdt [gdt_descriptor]
+	mov si, str_loaded_gdt
 	call print_string
 
 	jmp 0x600 ; Jump to the kernel
+	jmp hang
+
+; Infinite loop (hang the system if no bootable partition is found)
+hang:
 	jmp hang
 
 load_kernel:
@@ -42,9 +49,12 @@ print_string:
 print_string_ret:
 	ret
 
-hello db "Hello from the MBR!", 0x0D, 0x0A, 0
-loaded db "Loaded kernel into RAM"
+; Strings
+str_hello db "Hello from the MBR!", 0x0D, 0x0A, 0
+str_loaded_kernel db "Loaded kernel into RAM", 0x0D, 0x0A, 0
+str_loaded_gdt db "Loaded GDT", 0x0D, 0x0A, 0
 
+; Disk Address Packet
 dap:
 	db 0x10 ; Size of the DAP (16 bytes)
 	db 0 ; Unused
@@ -53,9 +63,8 @@ dap:
 	dw 0 ; Segment of buffer in memory
 	dq 1 ; LBA of the first sector to read (the sector immediately after MBR)
 
-; Infinite loop (hang the system if no bootable partition is found)
-hang:
-	jmp hang
+
+%include "src/gdt.asm"
 
 ; Boot signature
 times 510-($-$$) db 0 ; Pad boot sector with 0s
