@@ -54,10 +54,9 @@ rm_switch_to_pm:
 	mov eax, cr0
 	or eax, 0x1
 	mov cr0, eax
-	jmp pm_init ; pm_init from protected_mode.asm
+	jmp CODE_SEG:pm_init ; CODE_SEG from gdt.asm, pm_init from protected_mode.asm
 
 ; Strings
 str_hello db "Hello from the MBR!", 0x0D, 0x0A, 0
 str_loaded_kernel db "Loaded kernel into RAM", 0x0D, 0x0A, 0
 str_loaded_gdt db "Loaded GDT", 0x0D, 0x0A, 0
-str_initialized_protected_mode db "Initialized protected mode", 0x0D, 0x0A, 0
