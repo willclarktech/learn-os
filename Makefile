@@ -4,7 +4,8 @@ BIN_DIR=bin
 MBR_SRC=$(SRC_DIR)/mbr.asm
 MBR_BIN=$(BIN_DIR)/mbr.bin
 
-KERNEL_SRC=$(SRC_DIR)/kernel.asm
+KERNEL_SRC=$(SRC_DIR)/kernel.c
+KERNEL_OBJECT=$(BIN_DIR)/kernel.o
 KERNEL_BIN=$(BIN_DIR)/kernel.bin
 KERNEL_LOAD_ADDRESS=0x0600
 
@@ -23,7 +24,8 @@ $(MBR_BIN): $(MBR_SRC) | $(BIN_DIR)
 	nasm -f bin -o $(MBR_BIN) $(MBR_SRC)
 
 $(KERNEL_BIN): $(KERNEL_SRC) | $(BIN_DIR)
-	nasm -f bin -o $(KERNEL_BIN) $(KERNEL_SRC)
+	x86_64-linux-gnu-gcc -m16 -ffreestanding -fno-pic -c $(KERNEL_SRC) -o $(KERNEL_OBJECT)
+	x86_64-linux-gnu-ld -m elf_i386 -Ttext $(KERNEL_LOAD_ADDRESS) --oformat binary -o $(KERNEL_BIN) $(KERNEL_OBJECT)
 
 $(HDD_IMG): $(MBR_BIN) $(KERNEL_BIN)
 	dd if=/dev/zero of=$(HDD_IMG) bs=512 count=$(shell echo "$(DISK_SIZE_MB)*$(SECTORS_PER_MB)" | bc)
