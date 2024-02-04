@@ -5,13 +5,16 @@ start:
 	cli ; Disable interrupts
 	cld ; Clear direction flag
 
-	xor ax, ax ; Set up segments
+	; Set up segments for real mode
+	xor ax, ax
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
-	mov sp, ax ; Set stack pointer to the top of the segment
+
+	; Set stack pointer to the bottom of the segment
+	mov sp, ax
 
 	mov si, str_hello
 	call print_string
@@ -24,20 +27,11 @@ start:
 	mov si, str_loaded_gdt
 	call print_string
 
-	jmp 0x600 ; Jump to the kernel
-	jmp hang
+	jmp switch_to_protected_mode
 
 ; Infinite loop (hang the system if no bootable partition is found)
-hang:
-	jmp hang
-
-load_kernel:
-	mov si, dap
-	mov ah, 0x42 ; Function number for extended read
-	mov dl, 0x80 ; Drive number for the HDD
-	int 0x13
-	jc hang
-	ret
+hang_16:
+	jmp hang_16
 
 print_string:
 	lodsb
@@ -49,17 +43,49 @@ print_string:
 print_string_ret:
 	ret
 
+load_kernel:
+	mov si, dap
+	mov ah, 0x42 ; Function number for extended read
+	mov dl, 0x80 ; Drive number for the HDD
+	int 0x13
+	jc hang_16
+	ret
+
+switch_to_protected_mode:
+	mov eax, cr0
+	or eax, 0x1
+	mov cr0, eax
+	jmp init_protected_mode
+
+[bits 32]
+
+init_protected_mode:
+	; Set up segments for protected mode
+	mov ax, DATA_SEG
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+
+	jmp 0x600 ; Jump to the kernel
+	jmp hang_32
+
+hang_32:
+	jmp hang_32
+
 ; Strings
 str_hello db "Hello from the MBR!", 0x0D, 0x0A, 0
 str_loaded_kernel db "Loaded kernel into RAM", 0x0D, 0x0A, 0
 str_loaded_gdt db "Loaded GDT", 0x0D, 0x0A, 0
+str_initialized_protected_mode db "Initialized protected mode", 0x0D, 0x0A, 0
 
 ; Disk Address Packet
 dap:
 	db 0x10 ; Size of the DAP (16 bytes)
 	db 0 ; Unused
 	dw 1 ; Number of sectors to read
-	dw 0x600 ; Offset of buffer in memory (destination)
+	dw 0x600 ; Offset of buffer in memory (kernel destination)
 	dw 0 ; Segment of buffer in memory
 	dq 1 ; LBA of the first sector to read (the sector immediately after MBR)
 
