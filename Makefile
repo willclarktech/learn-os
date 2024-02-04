@@ -9,6 +9,8 @@ KERNEL_OBJECT=$(BIN_DIR)/kernel.o
 KERNEL_BIN=$(BIN_DIR)/kernel.bin
 KERNEL_LOAD_ADDRESS=0x0600
 
+LINKER_SCRIPT=$(SRC_DIR)/link.ld
+
 HDD_IMG=hdd.img
 DISK_SIZE_MB=10
 SECTORS_PER_MB=2048
@@ -25,7 +27,7 @@ $(MBR_BIN): $(MBR_SRC) | $(BIN_DIR)
 
 $(KERNEL_BIN): $(KERNEL_SRC) | $(BIN_DIR)
 	x86_64-linux-gnu-gcc -m16 -ffreestanding -fno-pic -c $(KERNEL_SRC) -o $(KERNEL_OBJECT)
-	x86_64-linux-gnu-ld -m elf_i386 -Ttext $(KERNEL_LOAD_ADDRESS) --oformat binary -o $(KERNEL_BIN) $(KERNEL_OBJECT)
+	x86_64-linux-gnu-ld -m elf_i386 -T $(LINKER_SCRIPT) --oformat binary -o $(KERNEL_BIN) $(KERNEL_OBJECT)
 
 $(HDD_IMG): $(MBR_BIN) $(KERNEL_BIN)
 	dd if=/dev/zero of=$(HDD_IMG) bs=512 count=$(shell echo "$(DISK_SIZE_MB)*$(SECTORS_PER_MB)" | bc)
