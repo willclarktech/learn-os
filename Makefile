@@ -33,7 +33,7 @@ $(HDD_IMG): $(MBR_BIN) $(KERNEL_BIN)
 	dd if=$(KERNEL_BIN) of=$(HDD_IMG) conv=notrunc seek=1
 
 clean:
-	rm -rf $(BIN_DIR) $(HDD_IMG)
+	rm -rf $(BIN_DIR) $(HDD_IMG) $(HDD_IMG).lock
 
 run:
 	bochs -q
