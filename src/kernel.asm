@@ -8,7 +8,8 @@ INT_VIDEO_PRINT_CHAR equ 0x0e
 CHAR_TERMINATOR equ 0x00
 
 start:
-	; TODO: Explain these two lines
+	; Set the data segment to the start of the kernel
+	; This way we can easily reference data defined in this file
 	mov ax, cs
 	mov ds, ax
 

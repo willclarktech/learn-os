@@ -4,7 +4,7 @@ BOOTLOADER_SIZE equ 0x0200
 BOOTLOADER_MAGIC_BYTES_SIZE equ 0x02
 BOOTLOADER_MAGIC_BYTES equ 0xaa55
 ; TODO: Explain where these come from
-KERNEL_SECTOR equ 0x0900
+KERNEL_SEGMENT equ 0x0900
 KERNEL_START equ 0x0000
 
 ; Interrupt code for performing video actions
@@ -29,7 +29,8 @@ INT_HDD equ 0x13
 ; cl: The sector to start reading
 ; dh: The head to read
 ; dl: The disk type
-; bx: The starting memory location for storing the data
+; es: The data segment for storing the data
+; bx: The starting memory offset for storing the data
 INT_HDD_READ equ 0x02
 
 HARD_DISK_0 equ 0x80
@@ -40,7 +41,8 @@ CHAR_NEWLINE equ 0x0a
 START_OF_LINE equ 0x00
 
 start:
-	; TODO: Explain these two lines
+	; Set the data segment to the start of the bootloader
+	; This way we can easily reference data defined in this file
 	mov ax, BOOTLOADER_START
 	mov ds, ax
 
@@ -51,7 +53,7 @@ start:
 	call print_string
 
 	call load_kernel_from_disk
-	jmp KERNEL_SECTOR:KERNEL_START
+	jmp KERNEL_SEGMENT:KERNEL_START
 
 ; Prints a string
 ; si: The start address of the string to print
@@ -70,6 +72,7 @@ print_string:
 		int INT_VIDEO
 
 		mov ah, INT_VIDEO_READ_CURSOR
+		; TODO: Explain this 0
 		mov bh, 0
 		int INT_VIDEO
 
@@ -87,8 +90,7 @@ load_kernel_from_disk:
 	DISK_TYPE equ HARD_DISK_0
 	MEMORY_TARGET equ 0x00
 
-	; TODO: Explain these two lines
-	mov ax, KERNEL_SECTOR
+	mov ax, KERNEL_SEGMENT
 	mov es, ax
 
 	mov ah, INT_HDD_READ
@@ -112,5 +114,6 @@ title_string db "Welcome to the bootloader", CHAR_TERMINATOR
 message_string db "Loading kernel...", CHAR_TERMINATOR
 load_error_string db "Failed to load kernel", CHAR_TERMINATOR
 
-times (BOOTLOADER_SIZE-BOOTLOADER_MAGIC_BYTES_SIZE)-($-$$) db 0 ; Pad with null data
+; Pad with null data
+times (BOOTLOADER_SIZE-BOOTLOADER_MAGIC_BYTES_SIZE)-($-$$) db 0
 dw BOOTLOADER_MAGIC_BYTES
