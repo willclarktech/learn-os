@@ -21,6 +21,9 @@ void kernel_main()
 	println();
 	printi(n);
 	println();
+
+	__asm__("int $0x05");
+
 	while (1)
 	{
 		// loop
@@ -68,4 +71,11 @@ void printi(int number)
 	str[0] = ZERO + final_digit;
 	str[1] = EOS;
 	print(str);
+}
+
+void interrupt_handler(int interrupt_number)
+{
+	println();
+	print("Interrupt received: ");
+	printi(interrupt_number);
 }
