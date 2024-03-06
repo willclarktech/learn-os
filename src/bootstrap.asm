@@ -1,8 +1,12 @@
+SECTOR_SIZE equ 0x0200
+
 ; BIOS loads the bootloader into this memory address
 BOOTLOADER_START equ 0x07c0
-BOOTLOADER_SIZE equ 0x0200
+BOOTLOADER_SIZE equ SECTOR_SIZE
 BOOTLOADER_MAGIC_BYTES_SIZE equ 0x02
 BOOTLOADER_MAGIC_BYTES equ 0xaa55
+
+KERNEL_SECTOR equ 0x02 ; Right after the boot loader
 ; TODO: Explain where these come from
 KERNEL_SEGMENT equ 0x0900
 KERNEL_START equ 0x0000
@@ -11,10 +15,10 @@ KERNEL_START equ 0x0000
 ; ah: The action to perform
 INT_VIDEO equ 0x10
 ; Video action to move the cursor
-; dl: The target position in the line
+; dl: The target column
 INT_VIDEO_MOVE_CURSOR equ 0x02
 ; Video action to read the current cursor position
-; bh: TODO: what is this?
+; bh: Page number (0 for default)
 INT_VIDEO_READ_CURSOR equ 0x03
 ; Video action to print a character
 ; al: The character to print
@@ -37,6 +41,8 @@ HARD_DISK_0 equ 0x80
 
 CHAR_TERMINATOR equ 0x00
 CHAR_NEWLINE equ 0x0a
+
+DEFAULT_PAGE_NUMBER equ 0x00
 
 START_OF_LINE equ 0x00
 
@@ -72,8 +78,7 @@ print_string:
 		int INT_VIDEO
 
 		mov ah, INT_VIDEO_READ_CURSOR
-		; TODO: Explain this 0
-		mov bh, 0
+		mov bh, DEFAULT_PAGE_NUMBER
 		int INT_VIDEO
 
 		mov ah, INT_VIDEO_MOVE_CURSOR
@@ -86,23 +91,32 @@ load_kernel_from_disk:
 	N_SECTORS equ 0x01
 	TRACK equ 0x00
 	HEAD equ 0x00
-	SECTOR equ 0x02 ; Right after the bootloader
-	DISK_TYPE equ HARD_DISK_0
-	MEMORY_TARGET equ 0x00
 
 	mov ax, KERNEL_SEGMENT
 	mov es, ax
 
+	mov ax, [current_sector_to_load]
+	sub ax, KERNEL_SECTOR ; Remove the sector offset from the RAM target
+	mov bx, SECTOR_SIZE
+	mul bx ; Multiply ax by bx
+	mov bx, ax
+
 	mov ah, INT_HDD_READ
 	mov al, N_SECTORS
 	mov ch, TRACK
-	mov cl, SECTOR
+	mov cl, [current_sector_to_load]
 	mov dh, HEAD
-	mov dl, DISK_TYPE
-	mov bx, MEMORY_TARGET
+	mov dl, HARD_DISK_0
 	int INT_HDD
 
 	jc kernel_load_error
+
+	; TODO: Can we replace this loop by just setting N_SECTORS?
+	; TODO: Can we remove the `byte`s here?
+	inc byte [current_sector_to_load]
+	dec byte [num_sectors_to_load]
+	jnz load_kernel_from_disk
+
 	ret
 
 kernel_load_error:
@@ -113,6 +127,9 @@ kernel_load_error:
 title_string db "Welcome to the bootloader", CHAR_TERMINATOR
 message_string db "Loading kernel...", CHAR_TERMINATOR
 load_error_string db "Failed to load kernel", CHAR_TERMINATOR
+
+current_sector_to_load db KERNEL_SECTOR
+num_sectors_to_load db 0x0f
 
 ; Pad with null data
 times (BOOTLOADER_SIZE-BOOTLOADER_MAGIC_BYTES_SIZE)-($-$$) db 0
