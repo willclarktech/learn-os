@@ -1,7 +1,7 @@
 megs: 32
-romimage: file=/usr/share/bochs/BIOS-bochs-latest
-vgaromimage: file=/usr/share/bochs/VGABIOS-lgpl-latest
-ata0-master: type=disk, path="hdd.img", mode=flat, cylinders=20, heads=16, spt=63
+romimage: file=$BXSHARE/BIOS-bochs-latest
+vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
+ata0-master: type=disk, path=hdd.img, mode=flat, cylinders=2, heads=16, spt=63
 boot: disk
 log: bochslog.txt
 clock: sync=realtime, time0=local
