@@ -52,6 +52,7 @@ $(LINKED_OBJECT): $(KERNEL_OBJECT) $(STARTER_OBJECT)
 $(KERNEL_BIN): $(LINKED_OBJECT)
 	$(OBJCOPY) -O $(OBJCOPY_BINARY_FORMAT) $(LINKED_OBJECT) $(KERNEL_BIN)
 
+# TODO: Clean this up/explain numbers
 $(HDD_IMG): $(BOOTSTRAP_BIN) $(KERNEL_BIN)
 	dd if=$(BOOTSTRAP_BIN) of=$(HDD_IMG)
 	dd seek=1 conv=sync if=$(KERNEL_BIN) of=$(HDD_IMG) bs=$(SECTOR_SIZE) count=5
