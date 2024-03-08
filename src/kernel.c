@@ -1,10 +1,9 @@
-// Color text mode
-volatile unsigned char *video = 0xb8000;
-
 const int SCREEN_WIDTH = 80;
 const char EOS = '\0';
 const char ZERO = '0';
 const int WHITE = 0xf;
+
+volatile unsigned char *COLOR_VGA = (volatile unsigned char *)0xb8000;
 
 int next_text_position = 0;
 int current_line = 0;
@@ -40,8 +39,8 @@ void print(char *str)
 		current_char_location = next_text_position * 2;
 		current_color_location = current_char_location + 1;
 
-		video[current_char_location] = *str;
-		video[current_color_location] = WHITE;
+		COLOR_VGA[current_char_location] = *str;
+		COLOR_VGA[current_color_location] = WHITE;
 
 		++next_text_position;
 		++str;
