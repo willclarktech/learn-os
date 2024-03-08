@@ -3,7 +3,7 @@ ASM_FLAT_BINARY = bin
 ASM_ELF_BINARY = elf32
 
 CC = x86_64-linux-gnu-gcc
-KERNEL_FLAGS = -Wall -m32 -c -ffreestanding -fno-pie
+KERNEL_FLAGS = -Wall -m32 -c -ffreestanding -fno-asynchronous-unwind-tables -fno-pie
 
 LD = x86_64-linux-gnu-ld
 LD_ELF_FORMAT = elf_i386
