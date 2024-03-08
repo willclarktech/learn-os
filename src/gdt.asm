@@ -1,5 +1,3 @@
-; A GDT which implements a flat memory model
-
 PRESENT_FLAG equ 1<<7 ; Must be 1 for any valid segment
 DPL_FIELD_KERNEL equ 0<<5 ; Highest privilege
 DPL_FIELD_USERSPACE equ 3<<5 ; Lowest privilege
@@ -32,30 +30,30 @@ FLAGS_BYTE equ FLAGS<<4 | LIMIT_HIGH
 
 gdt:
 	; Required null entry
-	null_descriptor:
+	.null:
 		dq 0
-	kernel_code_descriptor:
+	.kernel_code:
 		dw LIMIT_LOW
 		dw BASE_LOW
 		db BASE_MID
 		db ACCESS_BYTE_KERNEL_CODE
 		db FLAGS_BYTE
 		db BASE_HIGH
-	kernel_data_descriptor:
+	.kernel_data:
 		dw LIMIT_LOW
 		dw BASE_LOW
 		db BASE_MID
 		db ACCESS_BYTE_KERNEL_DATA
 		db FLAGS_BYTE
 		db BASE_HIGH
-	userspace_code_descriptor:
+	.userspace_code:
 		dw LIMIT_LOW
 		dw BASE_LOW
 		db BASE_MID
 		db ACCESS_BYTE_USERSPACE_CODE
 		db FLAGS_BYTE
 		db BASE_HIGH
-	userspace_data_descriptor:
+	.userspace_data:
 		dw LIMIT_LOW
 		dw BASE_LOW
 		db BASE_MID
@@ -65,5 +63,5 @@ gdt:
 
 ; This will be loaded into the gdtr register so it matches that structure
 gdtr:
-	gdt_size: dw gdtr - gdt
-	gdt_base_address: dd gdt
+	.size: dw gdtr - gdt
+	.base: dd gdt

@@ -1,9 +1,8 @@
 extern kernel_main
 
-; Offsets in GDT
-NULL_SEGMENT equ 0x00
-KERNEL_CODE_SEGMENT equ 0x08
-KERNEL_DATA_SEGMENT equ 0x10
+NULL_SEGMENT equ gdt.null - gdt
+KERNEL_CODE_SEGMENT equ gdt.kernel_code - gdt
+KERNEL_DATA_SEGMENT equ gdt.kernel_data - gdt
 
 ; Interrupt code for performing video actions
 ; ah: The action to perform
