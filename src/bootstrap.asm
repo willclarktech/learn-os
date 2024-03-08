@@ -69,14 +69,14 @@ start:
 print_string:
 	mov ah, INT_VIDEO_PRINT_CHAR
 
-	print_next_char:
+	.print_next_char:
 		lodsb
 		cmp al, CHAR_TERMINATOR
-		je printing_finished
+		je .done
 		int INT_VIDEO
-		jmp print_next_char
+		jmp .print_next_char
 
-	printing_finished:
+	.done:
 		mov al, CHAR_NEWLINE
 		int INT_VIDEO
 
