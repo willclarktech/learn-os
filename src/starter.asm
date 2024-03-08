@@ -15,6 +15,9 @@ INT_VIDEO_SET_VIDEO_MODE equ 0x00
 ; cx: The cursor type
 INT_VIDEO_SET_CURSOR_TYPE equ 0x01
 
+; CR0 register protection enable bit
+PE_FLAG equ 1
+
 VIDEO_MODE_TEXT equ 0x03
 CURSOR_TYPE_DISABLED equ 0x2000
 PIC_PORT_PRIMARY_COMMAND equ 0x20
@@ -52,7 +55,7 @@ start:
 	call enter_protected_mode
 	call setup_interrupts
 
-	call KERNEL_CODE_SEGMENT:start_kernel
+	jmp KERNEL_CODE_SEGMENT:start_kernel
 
 load_gdt:
 	cli ; Clearing interrupts before entering protected mode is recommended
@@ -72,7 +75,7 @@ init_video_mode:
 
 enter_protected_mode:
 	mov eax, cr0
-	or eax, 1
+	or eax, PE_FLAG
 	mov cr0, eax
 	ret
 
@@ -129,6 +132,8 @@ start_kernel:
 	sti ; Now we are ready to re-enable interrupts
 
 	call kernel_main
+
+	jmp $ ; Infinite loop
 
 %include "src/gdt.asm"
 %include "src/idt.asm"
