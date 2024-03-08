@@ -1,3 +1,5 @@
+extern interrupt_handler
+
 WORD_SIZE equ 4
 
 SECONDARY_IRQ_BASE equ 40

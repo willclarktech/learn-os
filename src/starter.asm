@@ -1,5 +1,4 @@
 extern kernel_main
-extern interrupt_handler
 
 ; Offsets in GDT
 NULL_SEGMENT equ 0x00
