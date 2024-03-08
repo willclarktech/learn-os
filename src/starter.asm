@@ -135,5 +135,5 @@ start_kernel:
 
 	jmp $ ; Infinite loop
 
-%include "src/gdt.asm"
-%include "src/idt.asm"
+%include "gdt.asm"
+%include "idt.asm"
