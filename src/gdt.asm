@@ -63,5 +63,5 @@ gdt:
 
 ; This will be loaded into the gdtr register so it matches that structure
 gdtr:
-	.size: dw gdtr - gdt
+	.size: dw gdtr - gdt - 1
 	.base: dd gdt
